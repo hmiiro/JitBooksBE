@@ -1,0 +1,8 @@
+export enum InvoiceStatus {
+  CREATED = 'CREATED',
+  PAID = 'PAID',
+  HELD = 'HELD',
+  PARTIALLY_PAID = 'PARTIALLY PAID',
+  DELETED = 'DELETED',
+  CANCELLED = 'CANCELLED',
+}
