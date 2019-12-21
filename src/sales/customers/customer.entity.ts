@@ -44,9 +44,6 @@ export class Customer extends BaseEntity {
 
   @Column({ nullable: true })
   updateDt: string;
-
-  @OneToMany(type => Invoice, invoice => invoice.cusId, { eager: false })
-  invoices: Invoice[];
 }
 
 export enum CustomerStatus {

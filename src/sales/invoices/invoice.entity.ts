@@ -4,15 +4,18 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  CreateDateColumn,
+  JoinColumn,
+  OneToMany,
+  PrimaryColumn,
+  JoinTable,
 } from 'typeorm';
 import { InvoiceStatus } from './InvoiceStatusEnum';
 import { Customer } from '../customers/customer.entity';
+import { InvoiceItem } from './invoiceItem.entity';
 @Entity()
 export class Invoice extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+  @PrimaryColumn()
   invNo: string;
 
   // @Column()
@@ -34,7 +37,6 @@ export class Invoice extends BaseEntity {
   // totBal: number;
 
   @Column()
-  @ManyToOne(type => Customer, customer => customer.invoices, { eager: true })
   cusId: string;
 
   @Column()
@@ -43,10 +45,14 @@ export class Invoice extends BaseEntity {
   // @Column()
   // invDt: string;
 
-  // @Column()
-  // createDt: string;
+  @CreateDateColumn({
+    type: 'timestamp',
+  })
+  createDt: string;
 
-  @Column()
+  @Column({
+    default: 0,
+  })
   createBy: number;
 
   // @Column()
@@ -54,4 +60,9 @@ export class Invoice extends BaseEntity {
 
   // @Column()
   // updateBy: string;
+  @OneToMany(type => InvoiceItem, invoiceItem => invoiceItem.invNo, {
+    eager: true,
+  })
+  @JoinTable()
+  invoiceItems: InvoiceItem[];
 }

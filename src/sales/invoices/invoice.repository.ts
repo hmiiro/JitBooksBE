@@ -1,9 +1,11 @@
-import { Repository, EntityRepository } from 'typeorm';
+import { Repository, getCustomRepository, EntityRepository } from 'typeorm';
 import { Invoice } from './invoice.entity';
 import { CreateInvoiceDto } from './Dtos/createInvoice.dto';
 import { InvoiceStatus } from './InvoiceStatusEnum';
 import { GetInvoicesFilterDto } from './Dtos/getInvoicesFilter.dto';
 import { User } from 'src/auth/user.entity';
+import { CreateInvoiceItemDto } from './Dtos/createInvoiceItem.dto';
+import { InvoiceItemRepository } from './invoiceItem.repository';
 
 @EntityRepository(Invoice)
 export class InvoiceRepository extends Repository<Invoice> {
@@ -11,6 +13,7 @@ export class InvoiceRepository extends Repository<Invoice> {
   async createInvoice(
     createInvoiceDto: CreateInvoiceDto,
     user: User,
+    createInvoiceItemDto: CreateInvoiceItemDto,
   ): Promise<Invoice> {
     const {
       // totItems,
@@ -21,7 +24,6 @@ export class InvoiceRepository extends Repository<Invoice> {
       // totBal,
       cusId,
       // invDt,
-      // createDt,
       // updateDt,
       // updateBy,
     } = createInvoiceDto;
@@ -29,6 +31,13 @@ export class InvoiceRepository extends Repository<Invoice> {
     const invoice = new Invoice();
 
     invoice.invNo = await this.genInvoiceNo();
+
+    // CREATE INVOICE ITEMS
+    const invNo = invoice.invNo;
+    const itemsRepository = getCustomRepository(InvoiceItemRepository);
+    //const item = itemsRepository.create();
+    await itemsRepository.createInvoiceItem(createInvoiceItemDto, user, invNo);
+
     // invoice.totItems = totItems;
     // invoice.totBTax = totBTax;
     // invoice.totTax = totTax;
@@ -38,7 +47,7 @@ export class InvoiceRepository extends Repository<Invoice> {
     invoice.cusId = cusId;
     // invoice.invDt = invDt;
     invoice.status = InvoiceStatus.CREATED;
-    // invoice.createDt = createDt;
+
     invoice.createBy = user.id;
     // invoice.updateDt = updateDt;
     // invoice.updateBy = updateBy;

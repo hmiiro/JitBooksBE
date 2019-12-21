@@ -1,9 +1,11 @@
 {
+  "logging": true,
   "db": {
     "host": "localhost",
-    "username": "postgres",
-    "password": "Hakim",
-    "synchronize": true
+    "username": "root",
+    "password": "",
+    "synchronize": true,
+    "logging": true
   },
 
   "jwt": {

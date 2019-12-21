@@ -26,9 +26,6 @@ export class CreateInvoiceDto {
   // invDt: string;
 
   // @IsNotEmpty()
-  // createDt: string;
-
-  // @IsNotEmpty()
   // updateDt: string;
 
   // @IsNotEmpty()

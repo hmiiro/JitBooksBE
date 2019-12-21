@@ -23,6 +23,7 @@ import { Customer } from './customers/customer.entity';
 import { CreateCustomerDto } from './customers/create-customer.dto';
 import { User } from '../auth/user.entity';
 import { GetUser } from '../auth/get-user-decorator';
+import { CreateInvoiceItemDto } from './invoices/Dtos/createInvoiceItem.dto';
 
 @Controller('sales')
 // Set authorisation to the controller
@@ -62,9 +63,15 @@ export class SalesController {
   @UsePipes(ValidationPipe)
   createInvoice(
     @Body() createInvoiceDto: CreateInvoiceDto,
+    @Body() createInvoiceItemDto: CreateInvoiceItemDto,
     @GetUser() user: User,
   ): Promise<Invoice> {
-    return this.salesService.createInvoice(createInvoiceDto, user);
+    //console.log(createInvoiceItemDto);
+    return this.salesService.createInvoice(
+      createInvoiceDto,
+      user,
+      createInvoiceItemDto,
+    );
   }
 
   //GET INVOICES

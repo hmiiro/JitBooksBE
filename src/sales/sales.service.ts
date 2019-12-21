@@ -9,6 +9,7 @@ import { CustomerRepository } from './customers/customer.repository';
 import { Customer } from './customers/customer.entity';
 import { CreateCustomerDto } from './customers/create-customer.dto';
 import { User } from '../auth/user.entity';
+import { CreateInvoiceItemDto } from './invoices/Dtos/createInvoiceItem.dto';
 
 @Injectable()
 export class SalesService {
@@ -47,8 +48,13 @@ export class SalesService {
   createInvoice(
     createInvoiceDto: CreateInvoiceDto,
     user: User,
+    createInvoiceItemDto: CreateInvoiceItemDto,
   ): Promise<Invoice> {
-    return this.invoiceRepository.createInvoice(createInvoiceDto, user);
+    return this.invoiceRepository.createInvoice(
+      createInvoiceDto,
+      user,
+      createInvoiceItemDto,
+    );
   }
   //GET ALL INVOICES
   getInvoices(filterDto: GetInvoicesFilterDto): Promise<Invoice[]> {

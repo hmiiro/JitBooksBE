@@ -4,9 +4,10 @@
   },
 
   "db": {
-    "type": "postgres",
-    "port": 5432,
-    "database": "JitBooks"
+    "type": "mysql",
+    "port": 3306,
+    "database": "JitBooks",
+    "logging": true
   },
 
   "jwt": {
