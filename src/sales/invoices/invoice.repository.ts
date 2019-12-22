@@ -6,6 +6,8 @@ import { GetInvoicesFilterDto } from './Dtos/getInvoicesFilter.dto';
 import { User } from 'src/auth/user.entity';
 import { CreateInvoiceItemDto } from './Dtos/createInvoiceItem.dto';
 import { InvoiceItemRepository } from './invoiceItem.repository';
+import LineItemsDto from './Dtos/lineItems.dto';
+import { InternalServerErrorException } from '@nestjs/common';
 
 @EntityRepository(Invoice)
 export class InvoiceRepository extends Repository<Invoice> {
@@ -13,13 +15,14 @@ export class InvoiceRepository extends Repository<Invoice> {
   async createInvoice(
     createInvoiceDto: CreateInvoiceDto,
     user: User,
-    createInvoiceItemDto: CreateInvoiceItemDto,
+    lineItems: LineItemsDto,
+    //createInvoiceItemDto: CreateInvoiceItemDto,
   ): Promise<Invoice> {
     const {
       // totItems,
       // totBTax,
       // totTax,
-      totAmt,
+      //totAmt,
       // totPaid,
       // totBal,
       cusId,
@@ -30,30 +33,62 @@ export class InvoiceRepository extends Repository<Invoice> {
 
     const invoice = new Invoice();
 
-    invoice.invNo = await this.genInvoiceNo();
+    try {
+      invoice.invNo = await this.genInvoiceNo();
+      // changing the sent invoice items to an "items" array
+      const newItems = JSON.stringify(lineItems);
+      const items = JSON.parse(newItems);
 
-    // CREATE INVOICE ITEMS
-    const invNo = invoice.invNo;
-    const itemsRepository = getCustomRepository(InvoiceItemRepository);
-    //const item = itemsRepository.create();
-    await itemsRepository.createInvoiceItem(createInvoiceItemDto, user, invNo);
+      // LOOP THRU TO CREATE INVOICE ITEMS FOR EACH ITEM IN THE "items" array
+      items.map(async item => {
+        const invNo = invoice.invNo;
+        // injecting invoice items repo to use it
+        const itemsRepository = getCustomRepository(InvoiceItemRepository);
+        // call the repo create item method here and give the looped item, user & Invoice No.
+        await itemsRepository.createInvoiceItem(item, user, invNo);
+      });
+      // MAKING SURE WE ONLY SAVE AN INVOICE IF IT HAS ITEMS
+      if (items.length <= 0) {
+        throw new InternalServerErrorException(
+          `Error creating invoice, no items`,
+        );
+      } else {
+        // NOW GENERATE INVOICE DETAILS USING ITEMS ARRAY
+        const calcLineItemsTotal = () => {
+          return items.reduce((prev, cur) => prev + cur.qty * cur.itemPrice, 0);
+        };
 
-    // invoice.totItems = totItems;
-    // invoice.totBTax = totBTax;
-    // invoice.totTax = totTax;
-    invoice.totAmt = totAmt;
-    // invoice.totPaid = totPaid;
-    // invoice.totBal = totBal;
-    invoice.cusId = cusId;
-    // invoice.invDt = invDt;
-    invoice.status = InvoiceStatus.CREATED;
+        const calcTaxTotal = () => {
+          return items.reduce(
+            (prev, cur) => prev + cur.qty * cur.itemPrice * cur.taxRate,
+            0,
+          );
+        };
 
-    invoice.createBy = user.id;
-    // invoice.updateDt = updateDt;
-    // invoice.updateBy = updateBy;
-    await invoice.save();
+        const calcGrandTotal = () => {
+          return calcLineItemsTotal() + calcTaxTotal();
+        };
 
-    return invoice;
+        invoice.totItems = items.length;
+        invoice.totBTax = calcLineItemsTotal();
+        invoice.totTax = calcTaxTotal();
+        invoice.totAmt = calcGrandTotal();
+        // invoice.totPaid = totPaid;
+        // invoice.totBal = totBal;
+        invoice.cusId = cusId;
+        // invoice.invDt = invDt;
+        invoice.status = InvoiceStatus.CREATED;
+
+        invoice.createBy = user.id;
+        // invoice.updateDt = updateDt;
+        // invoice.updateBy = updateBy;
+        await invoice.save();
+
+        return invoice;
+      }
+    } catch (error) {
+      return error;
+    }
   }
 
   // GET INVOICES

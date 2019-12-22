@@ -7,14 +7,13 @@ import { CreateInvoiceItemDto } from './Dtos/createInvoiceItem.dto';
 export class InvoiceItemRepository extends Repository<InvoiceItem> {
   //CREATE INVOICE
   async createInvoiceItem(
-    createInvoiceItemDto: CreateInvoiceItemDto,
+    //createInvoiceItemDto: CreateInvoiceItemDto,
+    item,
     user: User,
     invNo,
   ): Promise<InvoiceItem> {
-    const { itemCode, qty, itemPrice, taxRate } = createInvoiceItemDto;
-
+    const { itemCode, qty, itemPrice, taxRate } = item;
     const invoiceItem = new InvoiceItem();
-
     invoiceItem.invNo = invNo;
     invoiceItem.itemCode = itemCode;
     invoiceItem.qty = qty;

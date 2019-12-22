@@ -7,8 +7,6 @@ import {
   CreateDateColumn,
   JoinColumn,
 } from 'typeorm';
-import { InvoiceStatus } from './InvoiceStatusEnum';
-import { Invoice } from './invoice.entity';
 
 @Entity('invoiceItems')
 export class InvoiceItem extends BaseEntity {
@@ -21,13 +19,19 @@ export class InvoiceItem extends BaseEntity {
   @Column()
   itemCode: string;
 
-  @Column()
+  @Column({
+    type: 'double',
+  })
   qty: number;
 
-  @Column()
+  @Column({
+    type: 'double',
+  })
   itemPrice: number;
 
-  @Column()
+  @Column({
+    type: 'double',
+  })
   taxRate: number;
 
   @CreateDateColumn({
@@ -35,12 +39,11 @@ export class InvoiceItem extends BaseEntity {
   })
   createDt: string;
 
-  @Column({
-    default: 0,
-  })
+  @Column()
   createBy: number;
-  @ManyToOne(type => Invoice, invoice => invoice.invoiceItems)
-  invoiceItem: Invoice;
+
+  // @ManyToOne(type => Invoice, invoice => invoice.invoiceItems)
+  // invoiceItem: Invoice;
   // @Column()
   // updateDt: string;
 

@@ -18,16 +18,22 @@ export class Invoice extends BaseEntity {
   @PrimaryColumn()
   invNo: string;
 
-  // @Column()
-  // totItems: number;
-
-  // @Column()
-  // totBTax: number;
-
-  // @Column()
-  // totTax: number;
-
   @Column()
+  totItems: number;
+
+  @Column({
+    type: 'double',
+  })
+  totBTax: number;
+
+  @Column({
+    type: 'double',
+  })
+  totTax: number;
+
+  @Column({
+    type: 'double',
+  })
   totAmt: number;
 
   // @Column()
